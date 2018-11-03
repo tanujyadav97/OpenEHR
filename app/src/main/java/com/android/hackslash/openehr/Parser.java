@@ -31,7 +31,7 @@ public class Parser {
 
     public static void getData() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.android.hackslash.openehr/archetypeRepository/";
-        String filename = "openEHR-EHR-OBSERVATION.braden_scale.v1.adl";
+        String filename = "openEHR-EHR-ACTION.medication.v1.adl";
         File adlFile = new File(
                 path + filename);
         try {
@@ -44,7 +44,7 @@ public class Parser {
             CComplexObject c = at.getDefinition();
 //			System.out.println(c.toString());
 
-            xmlParser(xmlstring, "OBSERVATION");
+            xmlParser(xmlstring, "ACTION");
         } catch (Exception e) {
             System.out.print(e.toString());
         }
@@ -84,7 +84,7 @@ public class Parser {
                 childNames.add(fieldDesc.get(getTagContent(childnodes.get(i), "node_id")).second);
                 System.out.println(childNames.get(i));
             }
-            
+
             System.out.println(childnodes.size());
 
             System.out.println(graph.toString());
