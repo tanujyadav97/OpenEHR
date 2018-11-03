@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 public class Parser {
     public static Map<Integer, ArrayList<Integer>> graph = new HashMap<>();
     public static ArrayList<ArrayList<String>> childData = new ArrayList<>();
+    public static ArrayList<String> childNames = new ArrayList<>();
     public static Map<String, Pair<String, String>> fieldDesc = new HashMap<>();
 
     public static void getData() {
@@ -79,9 +80,11 @@ public class Parser {
              */
             getFieldName(doc.getElementsByTagName("ontology").item(0));
 
-            for (int i = 0; i < childnodes.size(); i++)
-                System.out.println(fieldDesc.get(getTagContent(childnodes.get(i), "node_id")).second);
-
+            for (int i = 0; i < childnodes.size(); i++) {
+                childNames.add(fieldDesc.get(getTagContent(childnodes.get(i), "node_id")).second);
+                System.out.println(childNames.get(i));
+            }
+            
             System.out.println(childnodes.size());
 
             System.out.println(graph.toString());
