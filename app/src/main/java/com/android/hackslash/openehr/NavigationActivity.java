@@ -3,6 +3,7 @@ package com.android.hackslash.openehr;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +16,9 @@ import android.view.MenuItem;
 
 public class NavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private String TAG = "Navigation Activity";
+    private DownloadFiles downFile = new DownloadFiles();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,18 @@ public class NavigationActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        new Thread(new Runnable() {
+            public void run() {
+                /*
+                type =0 check files are there or not, if not download
+                type =1 force download files
+                 */
+                Boolean downloadStatus = downFile.download(0);
+                Log.i(TAG, "Download Status : " + downloadStatus);
+            }
+        }).start();
+
     }
 
     @Override
@@ -46,20 +62,20 @@ public class NavigationActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_home) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_action) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_evaluation) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_observation) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_instruction) {
+
+        } else if (id == R.id.nav_settings) {
 
         }
 
