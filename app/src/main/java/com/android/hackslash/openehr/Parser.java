@@ -11,8 +11,10 @@ import org.openehr.am.archetype.constraintmodel.CComplexObject;
 import org.openehr.am.serialize.XMLSerializer;
 
 import se.acode.openehr.parser.ADLParser;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -30,7 +32,7 @@ public class Parser {
     public static Map<String, Pair<String, String>> fieldDesc = new HashMap<>();
 
     public static void getData() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/com.android.hackslash.openehr/archetypeRepository/";
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.android.hackslash.openehr/archetypeRepository/";
         String filename = "openEHR-EHR-ACTION.medication.v1.adl";
         File adlFile = new File(
                 path + filename);
