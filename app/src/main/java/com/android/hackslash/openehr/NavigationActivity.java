@@ -143,7 +143,7 @@ public class NavigationActivity extends AppCompatActivity
 
     private void loadFileNames() {
         File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/Android/data", "com.android.hackslash.openehr1");
+                "/Android/data", "com.android.hackslash.openehr");
         files = directory.listFiles();
         Log.d("Files", "Size: " + files.length);
         String filename = "";

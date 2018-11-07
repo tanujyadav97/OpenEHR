@@ -22,7 +22,7 @@ public class DownloadFiles {
         int status = 0;
 
         File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/Android/data", "com.android.hackslash.openehr1");
+                "/Android/data", "com.android.hackslash.openehr");
         try {
             if (!dir.exists()) {
                 dir.mkdir();
@@ -67,7 +67,7 @@ public class DownloadFiles {
             urlConnection.connect();
 
             File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                    "/Android/data/com.android.hackslash.openehr1", fileName);
+                    "/Android/data/com.android.hackslash.openehr", fileName);
 
             FileOutputStream fileOutput = new FileOutputStream(file);
 

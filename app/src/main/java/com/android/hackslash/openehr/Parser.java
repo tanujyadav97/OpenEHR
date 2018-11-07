@@ -37,7 +37,7 @@ public class Parser {
         childNames.clear();
         fieldDesc.clear();
 
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.android.hackslash.openehr/archetypeRepository/";
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.android.hackslash.openehr/";
         File adlFile = new File(
                 path + filename);
         try {
