@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +26,8 @@ public class NavigationActivity extends AppCompatActivity
     private String TAG = "Navigation Activity";
     private DownloadFiles downFile = new DownloadFiles();
     public File[] files;
-    LinearLayout homeLL, rootLL;
+    LinearLayout rootLL;
+    ScrollView homeSV, rootSV;
     Button updateFiles;
     TextView availfiles;
 
@@ -62,8 +64,9 @@ public class NavigationActivity extends AppCompatActivity
             }
         }).start();
 
-        homeLL = findViewById(R.id.homeLL);
+        homeSV = findViewById(R.id.homeSV);
         rootLL = findViewById(R.id.rootLL);
+        rootSV = findViewById(R.id.rootSV);
         updateFiles = findViewById(R.id.updateButton);
         availfiles = findViewById(R.id.availfile);
 
@@ -104,36 +107,36 @@ public class NavigationActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             getSupportActionBar().setTitle("OpenEHR");
-            rootLL.setVisibility(View.GONE);
-            homeLL.setVisibility(View.VISIBLE);
+            rootSV.setVisibility(View.GONE);
+            homeSV.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_action) {
             getSupportActionBar().setTitle("Action");
-            homeLL.setVisibility(View.GONE);
-            rootLL.setVisibility(View.VISIBLE);
+            homeSV.setVisibility(View.GONE);
+            rootSV.setVisibility(View.VISIBLE);
             rootLL.removeAllViews();
             addViews("ACTION");
         } else if (id == R.id.nav_evaluation) {
             getSupportActionBar().setTitle("Evaluation");
-            homeLL.setVisibility(View.GONE);
-            rootLL.setVisibility(View.VISIBLE);
+            homeSV.setVisibility(View.GONE);
+            rootSV.setVisibility(View.VISIBLE);
             rootLL.removeAllViews();
             addViews("EVALUATION");
         } else if (id == R.id.nav_observation) {
             getSupportActionBar().setTitle("Observation");
-            homeLL.setVisibility(View.GONE);
-            rootLL.setVisibility(View.VISIBLE);
+            homeSV.setVisibility(View.GONE);
+            rootSV.setVisibility(View.VISIBLE);
             rootLL.removeAllViews();
             addViews("OBSERVATION");
         } else if (id == R.id.nav_instruction) {
             getSupportActionBar().setTitle("Instruction");
-            homeLL.setVisibility(View.GONE);
-            rootLL.setVisibility(View.VISIBLE);
+            homeSV.setVisibility(View.GONE);
+            rootSV.setVisibility(View.VISIBLE);
             rootLL.removeAllViews();
             addViews("INSTRUCTION");
         } else if (id == R.id.nav_settings) {
             getSupportActionBar().setTitle("Settings");
-            homeLL.setVisibility(View.GONE);
-            rootLL.setVisibility(View.GONE);
+            homeSV.setVisibility(View.GONE);
+            rootSV.setVisibility(View.GONE);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

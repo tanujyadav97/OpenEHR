@@ -380,8 +380,13 @@ public class Parser {
         ArrayList<String> list = new ArrayList<>();
 
         list.add("DV_QUANTITY");
-        list.add(getTagContent(getNamedChild(list_node, "magnitude").get(0), "lower"));
-        list.add(getTagContent(getNamedChild(list_node, "magnitude").get(0), "upper"));
+        if (getNamedChild(list_node, "magnitude").size() > 0) {
+            list.add(getTagContent(getNamedChild(list_node, "magnitude").get(0), "lower"));
+            list.add(getTagContent(getNamedChild(list_node, "magnitude").get(0), "upper"));
+        } else {
+            list.add("");
+            list.add("");
+        }
         list.add(getTagContent(list_node, "units"));
 
         return list;
