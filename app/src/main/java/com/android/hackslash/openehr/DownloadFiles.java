@@ -16,7 +16,6 @@ public class DownloadFiles {
     private String TAG = "Download Files";
 
     public DownloadFiles() {
-
     }
 
     public boolean download(int type) {

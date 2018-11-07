@@ -31,9 +31,13 @@ public class Parser {
     public static ArrayList<String> childNames = new ArrayList<>();
     public static Map<String, Pair<String, String>> fieldDesc = new HashMap<>();
 
-    public static void getData() {
+    public static void getData(String filename, String type) {
+        graph.clear();
+        childData.clear();
+        childNames.clear();
+        fieldDesc.clear();
+
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/com.android.hackslash.openehr/archetypeRepository/";
-        String filename = "openEHR-EHR-ACTION.medication.v1.adl";
         File adlFile = new File(
                 path + filename);
         try {
@@ -46,7 +50,7 @@ public class Parser {
             CComplexObject c = at.getDefinition();
 //			System.out.println(c.toString());
 
-            xmlParser(xmlstring, "ACTION");
+            xmlParser(xmlstring, type);
         } catch (Exception e) {
             System.out.print(e.toString());
         }

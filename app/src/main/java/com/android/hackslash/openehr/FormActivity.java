@@ -1,11 +1,13 @@
 package com.android.hackslash.openehr;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -17,7 +19,7 @@ import android.widget.TimePicker;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class FormActivity extends AppCompatActivity {
     public LinearLayout rootLL;
 
     @Override
@@ -25,12 +27,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rootLL = findViewById(R.id.parentLL);
-        makeForm();
+
+        Intent intent = getIntent();
+        String filename = intent.getStringExtra("file");
+        String type = intent.getStringExtra("type");
+
+        makeForm(filename, type);
     }
 
-    private void makeForm() {
-        Parser.getData();
+    private void makeForm(String filename, String type) {
+        Parser.getData(filename, type);
         dfs(-1, 0);
+
+        Button submit = new Button(this);
+        submit.setText("Submit");
+        rootLL.addView(submit);
     }
 
     private void dfs(int root, int padding) {
