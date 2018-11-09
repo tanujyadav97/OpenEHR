@@ -31,6 +31,9 @@ public class FormActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String filename = intent.getStringExtra("file");
         String type = intent.getStringExtra("type");
+        String title = intent.getStringExtra("title");
+
+        getSupportActionBar().setTitle(title);
 
         makeForm(filename, type);
     }

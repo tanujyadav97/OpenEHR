@@ -169,7 +169,7 @@ public class NavigationActivity extends AppCompatActivity
             if (file.getName().contains(type)) {
                 Button button = new Button(this);
 
-                String buttonName = file.getName().replace("openEHR-EHR-", "")
+                final String buttonName = file.getName().replace("openEHR-EHR-", "")
                         .replace(".adl", "").replace(type + ".", "");
                 button.setText(buttonName);
 
@@ -179,6 +179,7 @@ public class NavigationActivity extends AppCompatActivity
                         Intent intent = new Intent(NavigationActivity.this, FormActivity.class);
                         intent.putExtra("file", file.getName());
                         intent.putExtra("type", type);
+                        intent.putExtra("title", buttonName);
                         startActivity(intent);
                     }
                 });
