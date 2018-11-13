@@ -2,8 +2,11 @@ package com.android.hackslash.openehr;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -16,22 +19,55 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.android.hackslash.openehr.DB.Field;
+import com.android.hackslash.openehr.DB.NodeData;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class FormActivity extends AppCompatActivity {
     public LinearLayout rootLL;
+    ArrayList<Pair<String, Pair<String, View>>> views = new ArrayList<>();
+    private DatabaseReference mDatabase;
+    private String filename, type, title;
+    private ArrayList<Field> fields = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
+//                    NodeData note = noteDataSnapshot.getValue(NodeData.class);
+//                    System.out.println(note.archetype_name);
+//                    System.out.println(note.timestamp);
+//                    System.out.println(note.context_id);
+//                    System.out.println(note.field_data.get(0).name);
+//                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         rootLL = findViewById(R.id.parentLL);
 
         Intent intent = getIntent();
-        String filename = intent.getStringExtra("file");
-        String type = intent.getStringExtra("type");
-        String title = intent.getStringExtra("title");
+        filename = intent.getStringExtra("file");
+        type = intent.getStringExtra("type");
+        title = intent.getStringExtra("title");
 
         getSupportActionBar().setTitle(title);
 
@@ -44,6 +80,13 @@ public class FormActivity extends AppCompatActivity {
 
         Button submit = new Button(this);
         submit.setText("Submit");
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fields.clear();
+                readData();
+            }
+        });
         rootLL.addView(submit);
     }
 
@@ -186,6 +229,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(ll1);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("NumberPicker", new Pair(tv.getText(), np)));
+        else
+            views.add(new Pair("NumberPicker", new Pair(tv.getText() + " Quantity", np)));
     }
 
     private void addText(boolean type, int root, int padding) {
@@ -206,6 +254,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(et);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("EditText", new Pair(tv.getText(), et)));
+        else
+            views.add(new Pair("EditText", new Pair(tv.getText() + " text", et)));
     }
 
     private void addCount(boolean type, int root, ArrayList<String> data, int padding) {
@@ -238,6 +291,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(ll1);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("NumberPicker", new Pair(tv.getText(), np)));
+        else
+            views.add(new Pair("NumberPicker", new Pair(tv.getText() + " Count", np)));
     }
 
     private void addOrdinal(boolean type, int root, ArrayList<String> data, int padding) {
@@ -260,6 +318,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(sp);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("Spinner", new Pair(tv.getText(), sp)));
+        else
+            views.add(new Pair("Spinner", new Pair(tv.getText() + " Ordinal", sp)));
     }
 
     private void addDateTime(boolean type, int root, int padding) {
@@ -271,6 +334,7 @@ public class FormActivity extends AppCompatActivity {
         tv.setTextColor(getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
         tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        View vw = tv;
         LinearLayout ll1 = new LinearLayout(this);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
         final LayoutInflater factory = getLayoutInflater();
@@ -285,6 +349,14 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(ll1);
         rootLL.addView(ll);
+
+        if (type) {
+            views.add(new Pair("DatePicker", new Pair(tv.getText() + " Date", dp)));
+            views.add(new Pair("TimePicker", new Pair(tv.getText() + " Time", tp)));
+        } else {
+            views.add(new Pair("DatePicker", new Pair(tv.getText() + " Date Datetime", dp)));
+            views.add(new Pair("TimePicker", new Pair(tv.getText() + " Time Datetime", tp)));
+        }
     }
 
     private void addBoolean(boolean type, int root, int padding) {
@@ -308,6 +380,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(ll1);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("Switch", new Pair(tv.getText(), sw)));
+        else
+            views.add(new Pair("Switch", new Pair(tv.getText() + " Boolean", sw)));
     }
 
     private void addDuration(boolean type, int root, int padding) {
@@ -345,6 +422,14 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(ll1);
         rootLL.addView(ll);
+
+        if (type) {
+            views.add(new Pair("NumberPicker", new Pair(tv.getText() + " Value", np)));
+            views.add(new Pair("Spinner", new Pair(tv.getText() + " Unit", sp)));
+        } else {
+            views.add(new Pair("NumberPicker", new Pair(tv.getText() + " Value Duration", np)));
+            views.add(new Pair("Spinner", new Pair(tv.getText() + " Unit Duration", sp)));
+        }
     }
 
     private void addParsable(boolean type, int root, ArrayList<String> data, int padding) {
@@ -367,6 +452,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(sp);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("Spinner", new Pair(tv.getText(), sp)));
+        else
+            views.add(new Pair("Spinner", new Pair(tv.getText() + " Parsable", sp)));
     }
 
     private void addCodedText(boolean type, int root, ArrayList<String> data, int padding) {
@@ -389,6 +479,11 @@ public class FormActivity extends AppCompatActivity {
             ll.addView(tv);
         ll.addView(sp);
         rootLL.addView(ll);
+
+        if (type)
+            views.add(new Pair("Spinner", new Pair(tv.getText(), sp)));
+        else
+            views.add(new Pair("Spinner", new Pair(tv.getText() + " Codedtext", sp)));
     }
 
     private void addCluster(boolean type, int root, int padding) {
@@ -416,5 +511,87 @@ public class FormActivity extends AppCompatActivity {
         tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
         ll.addView(tv);
         rootLL.addView(ll);
+    }
+
+    public void readData() {
+        for (int i = 0; i < views.size(); i++) {
+            switch (views.get(i).first) {
+                case "NumberPicker":
+                    readNumberPicker(views.get(i).second);
+                    break;
+                case "EditText":
+                    readEditText(views.get(i).second);
+                    break;
+                case "Spinner":
+                    readSpinner(views.get(i).second);
+                    break;
+                case "DatePicker":
+                    readDatePicker(views.get(i).second);
+                    break;
+                case "TimePicker":
+                    readTimePicker(views.get(i).second);
+                    break;
+                case "Switch":
+                    readSwitch(views.get(i).second);
+                    break;
+                default:
+
+            }
+        }
+
+        addDatatoFirebase();
+    }
+
+    private void readSwitch(Pair<String, View> data) {
+        Switch sw = (Switch) data.second;
+        Log.d("FormData :", data.first + " " + sw.isChecked());
+        fields.add(new Field(data.first, sw.isChecked() + ""));
+    }
+
+    private void readTimePicker(Pair<String, View> data) {
+        TimePicker tp = (TimePicker) data.second;
+        Log.d("FormData :", data.first + " " + tp.getHour() + ":" + tp.getMinute());
+        fields.add(new Field(data.first, tp.getHour() + ":" + tp.getMinute()));
+    }
+
+    private void readDatePicker(Pair<String, View> data) {
+        DatePicker dp = (DatePicker) data.second;
+        Log.d("FormData :", data.first + " " + dp.getDayOfMonth() + "-" + (dp.getMonth() + 1) + "-" + dp.getYear());
+        fields.add(new Field(data.first, dp.getDayOfMonth() + "-" + (dp.getMonth() + 1) + "-" + dp.getYear()));
+    }
+
+    private void readSpinner(Pair<String, View> data) {
+        Spinner sp = (Spinner) data.second;
+        Log.d("FormData :", data.first + " " + sp.getSelectedItem().toString());
+        fields.add(new Field(data.first, sp.getSelectedItem().toString()));
+    }
+
+    private void readEditText(Pair<String, View> data) {
+        EditText et = (EditText) data.second;
+        Log.d("FormData :", data.first + " " + et.getText());
+        fields.add(new Field(data.first, et.getText().toString()));
+    }
+
+    private void readNumberPicker(Pair<String, View> data) {
+        NumberPicker np = (NumberPicker) data.second;
+        Log.d("FormData :", data.first + " " + np.getValue());
+        fields.add(new Field(data.first, np.getValue() + ""));
+    }
+
+    private void addDatatoFirebase() {
+        String uid = mDatabase.push().getKey();
+        String ts = ((Long) System.currentTimeMillis()).toString();
+        NodeData mNode = new NodeData(ts, filename, "tanuj", fields);
+        mDatabase.child(uid).setValue(mNode, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError error, DatabaseReference ref) {
+                if (error == null) {
+                    Toast.makeText(getApplicationContext(), "Database Updated Successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Log.e("FormActivity", error.toString());
+                }
+            }
+        });
     }
 }
