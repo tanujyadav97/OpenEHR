@@ -3,6 +3,7 @@ package com.android.hackslash.openehr;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,9 +19,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
+import java.io.IOException;
 
 public class NavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,15 +36,39 @@ public class NavigationActivity extends AppCompatActivity
     ScrollView homeSV, rootSV;
     Button updateFiles;
     TextView availfiles;
+    private FirebaseAuth mAuth;
+    FirebaseAuth.AuthStateListener mAuthListner;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListner);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_navigation);
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListner = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser()==null)
+                {
+                    startActivity(new Intent(NavigationActivity.this, signin_activity.class));
+                }
+            }
+        };
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        File directoryToStore;
+        directoryToStore = getBaseContext().getExternalFilesDir("TestFolder");
+        if (!directoryToStore.exists()) {
+            if (directoryToStore.mkdir()) ; //directory is created;
+        }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -56,7 +84,12 @@ public class NavigationActivity extends AppCompatActivity
                 type =0 check files are there or not, if not download
                 type =1 force download files
                  */
-                Boolean downloadStatus = downFile.download(0);
+                Boolean downloadStatus = null;
+                try {
+                    downloadStatus = downFile.download(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Log.i(TAG, "Download Status : " + downloadStatus);
                 if (!downloadStatus) {
                     Toast.makeText(getApplicationContext(), "Unable to download archetypes from" +
@@ -78,7 +111,12 @@ public class NavigationActivity extends AppCompatActivity
             public void onClick(View v) {
                 new Thread(new Runnable() {
                     public void run() {
-                        Boolean downloadStatus = downFile.download(1);
+                        Boolean downloadStatus = null;
+                        try {
+                            downloadStatus = downFile.download(1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         Log.i(TAG, "Download Status : " + downloadStatus);
                         if (!downloadStatus) {
                             Toast.makeText(getApplicationContext(), "Unable to update archetypes from" +
