@@ -56,19 +56,14 @@ public class NavigationActivity extends AppCompatActivity
         mAuthListner = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser()==null)
-                {
+                if (firebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(NavigationActivity.this, signin_activity.class));
                 }
             }
         };
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        File directoryToStore;
-        directoryToStore = getBaseContext().getExternalFilesDir("TestFolder");
-        if (!directoryToStore.exists()) {
-            if (directoryToStore.mkdir()) ; //directory is created;
-        }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -84,12 +79,8 @@ public class NavigationActivity extends AppCompatActivity
                 type =0 check files are there or not, if not download
                 type =1 force download files
                  */
-                Boolean downloadStatus = null;
-                try {
-                    downloadStatus = downFile.download(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Boolean downloadStatus = downFile.download(0);
+
                 Log.i(TAG, "Download Status : " + downloadStatus);
                 if (!downloadStatus) {
                     Toast.makeText(getApplicationContext(), "Unable to download archetypes from" +
@@ -111,12 +102,8 @@ public class NavigationActivity extends AppCompatActivity
             public void onClick(View v) {
                 new Thread(new Runnable() {
                     public void run() {
-                        Boolean downloadStatus = null;
-                        try {
-                            downloadStatus = downFile.download(1);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Boolean downloadStatus = downFile.download(1);
+
                         Log.i(TAG, "Download Status : " + downloadStatus);
                         if (!downloadStatus) {
                             Toast.makeText(getApplicationContext(), "Unable to update archetypes from" +

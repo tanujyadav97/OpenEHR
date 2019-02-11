@@ -1,23 +1,13 @@
 package com.android.hackslash.openehr;
 
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.util.Log;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,100 +16,96 @@ public class DownloadFiles {
     private String TAG = "Download Files";
 
     public DownloadFiles() {
+
     }
 
-    public boolean download(int type) throws IOException {
-        int status = 1;
-        final String[] filenames = new String[1];
+    public boolean download(int type) {
+        int status = 0;
 
-        Log.i("dfgdfgdfgdfg",Integer.toString(status));
+        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                "/Android/data", "com.android.hackslash.openehr");
+        try {
+            if (!dir.exists()) {
+                dir.mkdir();
+                status = 1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.toString());
+        }
 
-
-            final FirebaseStorage[] storage = {FirebaseStorage.getInstance()};
-
-            StorageReference storageRef = storage[0].getReferenceFromUrl("gs://openehr-bb9fc.appspot.com/");
-            StorageReference  islandRef = storageRef.child("filenames.txt");
-           final File localFile = File.createTempFile("images", "txt");
-            islandRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Log.e("firebase ",";local tem file created  created " +localFile.toString());
-
-                  StringBuilder fileNamesString =  downloadFileNames(localFile);
+        if (status == 0 && type == 0)
+            return true;
+        else {
+            String fileNamesString = downloadFileNames("https://nitd.000webhostapp.com/openehr/filenames.txt");
+            if (fileNamesString.equals("")) {
+                return false;
+            } else {
+                String[] fileNames = fileNamesString.split("###");
+                for (int i = 0; i < fileNames.length; i++) {
+                    URL url = null;
                     try {
-                        doTheWork(fileNamesString);
-                    } catch (IOException e) {
+                        url = new URL("https://nitd.000webhostapp.com/openehr/adlfiles/" + fileNames[i]);
+                    } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
-                }
 
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Log.e("firebase ",";local tem file not created  created " +exception.toString());
-                }
-            });
-
-
-return true;
-
-
-
-    }
-
-    public void doTheWork(StringBuilder fileNamesString) throws IOException {
-        String  file = fileNamesString.toString();
-        if (file.equals("")) {
-                return;
-        } else {
-            String fileNames[]=file.split("###");
-            for (int i = 0; i < fileNames.length; i++) {
-                URL url = null;
-                Log.e("hhhhhhhhhhhhhhEEEEEEEE",fileNames[i]);
-                if (!downloadFile( fileNames[i])){
-                        return;
+                    if (!downloadFile(url, fileNames[i]))
+                        return false;
                 }
             }
         }
-    }
-
-    public boolean downloadFile( final String fileName) throws IOException {
-
-        final FirebaseStorage[] storage = {FirebaseStorage.getInstance()};
-
-        StorageReference storageRef = storage[0].getReferenceFromUrl("gs://openehr-bb9fc.appspot.com/");
-        StorageReference  islandRef = storageRef.child(fileName);
-        final File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/Android/data/com.android.hackslash.openehr", fileName);
-        islandRef.getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                Log.e("firebase ",";local tem file created  created " +file.toString());
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.e("firebase ",";local tem file not created  created " +exception.toString());
-            }
-        });
         return true;
     }
-    public StringBuilder downloadFileNames(File localFile) {
-        StringBuilder result = new StringBuilder();
 
+    public boolean downloadFile(URL url, String fileName) {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(localFile));
-            String line;
 
-            while ((line = br.readLine()) != null) {
-                result=result.append(line);
-                result=result.append("###");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(true);
+
+            urlConnection.connect();
+
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
+                    "/Android/data/com.android.hackslash.openehr", fileName);
+
+            FileOutputStream fileOutput = new FileOutputStream(file);
+
+            InputStream inputStream = urlConnection.getInputStream();
+
+            byte[] buffer = new byte[1024];
+            int bufferLength = 0;
+
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutput.write(buffer, 0, bufferLength);
             }
-            br.close();
+
+            fileOutput.close();
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error : " + e.toString());
+            return false;
         }
-        catch (IOException e) {
+    }
+
+    public String downloadFileNames(String link) {
+        String result = "";
+        try {
+            URL url = new URL(link);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String line = null;
+
+            while ((line = in.readLine()) != null) {
+                result += line + "###";
+            }
+
+            in.close();
+            return result;
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching the file names : " + e.toString());
+            return result;
         }
-        Log.e("firebase ",result.toString());
-        return result;
     }
 }

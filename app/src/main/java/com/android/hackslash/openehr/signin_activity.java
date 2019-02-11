@@ -67,7 +67,7 @@ public class signin_activity extends AppCompatActivity {
         Button ahlogin = (Button) findViewById(R.id.ah_login);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         TextView btnSignIn = (TextView) findViewById(R.id.sign_in_button);
-        button = (SignInButton)findViewById(R.id.sign_in_google);
+        button = (SignInButton) findViewById(R.id.sign_in_google);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
