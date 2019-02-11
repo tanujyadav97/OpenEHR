@@ -147,7 +147,7 @@ public class NavigationActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            getSupportActionBar().setTitle("OpenEHR");
+            getSupportActionBar().setTitle("MedEForm");
             rootSV.setVisibility(View.GONE);
             homeSV.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_action) {
