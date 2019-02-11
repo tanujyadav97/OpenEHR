@@ -23,18 +23,27 @@ import android.widget.Toast;
 
 import com.android.hackslash.openehr.DB.Field;
 import com.android.hackslash.openehr.DB.NodeData;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FormActivity extends AppCompatActivity {
     public LinearLayout rootLL;
     ArrayList<Pair<String, Pair<String, View>>> views = new ArrayList<>();
     private DatabaseReference mDatabase;
+    private FirebaseFirestore mFirestore;
+    private FirebaseUser account;
     private String filename, type, title;
     private ArrayList<Field> fields = new ArrayList<>();
 
@@ -43,6 +52,7 @@ public class FormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mFirestore = FirebaseFirestore.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -61,6 +71,8 @@ public class FormActivity extends AppCompatActivity {
 
             }
         });
+
+        account = FirebaseAuth.getInstance().getCurrentUser();
 
         rootLL = findViewById(R.id.parentLL);
 
@@ -539,7 +551,8 @@ public class FormActivity extends AppCompatActivity {
             }
         }
 
-        addDatatoFirebase();
+//        addDatatoFirebaseRealtime();
+        addDatatoFirestore();
     }
 
     private void readSwitch(Pair<String, View> data) {
@@ -578,7 +591,7 @@ public class FormActivity extends AppCompatActivity {
         fields.add(new Field(data.first, np.getValue() + ""));
     }
 
-    private void addDatatoFirebase() {
+    private void addDatatoFirebaseRealtime() {
         String uid = mDatabase.push().getKey();
         String ts = ((Long) System.currentTimeMillis()).toString();
         NodeData mNode = new NodeData(ts, filename, "tanuj", fields);
@@ -589,9 +602,39 @@ public class FormActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Database Updated Successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
+                    Toast.makeText(getApplicationContext(), "Unable to update database.", Toast.LENGTH_SHORT).show();
                     Log.e("FormActivity", error.toString());
                 }
             }
         });
+    }
+
+    private void addDatatoFirestore() {
+        Map<String, String> fieldsmap = getMapfromList();
+        String ts = ((Long) System.currentTimeMillis()).toString();
+
+        mFirestore.collection("EHR").document(account.getUid()).collection(filename)
+                .document(ts).set(fieldsmap).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getApplicationContext(), "Database Updated Successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), "Unable to update database.", Toast.LENGTH_SHORT).show();
+                        Log.e("FormActivity", e.toString());
+                    }
+                });
+    }
+
+    private Map<String, String> getMapfromList() {
+        Map<String, String> tmp = new HashMap<>();
+        for (int i = 0; i < fields.size(); i++) {
+            tmp.put(fields.get(i).name, fields.get(i).value);
+        }
+        return tmp;
     }
 }

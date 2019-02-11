@@ -19,12 +19,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.SignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
-import java.io.IOException;
 
 public class NavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,6 +42,7 @@ public class NavigationActivity extends AppCompatActivity
     TextView availfiles;
     private FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListner;
+    GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onStart() {
@@ -51,7 +56,6 @@ public class NavigationActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         setContentView(R.layout.activity_navigation);
-        mAuth = FirebaseAuth.getInstance();
 
         mAuthListner = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -115,6 +119,13 @@ public class NavigationActivity extends AppCompatActivity
                 }).start();
             }
         });
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
     @Override
@@ -165,6 +176,8 @@ public class NavigationActivity extends AppCompatActivity
             getSupportActionBar().setTitle("Settings");
             homeSV.setVisibility(View.GONE);
             rootSV.setVisibility(View.GONE);
+        } else if (id == R.id.nav_sign_out) {
+            signOut();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -214,5 +227,19 @@ public class NavigationActivity extends AppCompatActivity
                 rootLL.addView(button);
             }
         }
+    }
+
+    private void signOut() {
+        mAuth.signOut();
+
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent intent = new Intent(getApplicationContext(), signin_activity.class);
+                        finish();
+                        startActivity(intent);
+                    }
+                });
     }
 }

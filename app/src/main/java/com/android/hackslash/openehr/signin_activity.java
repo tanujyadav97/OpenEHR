@@ -41,11 +41,8 @@ public class signin_activity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
         super.onStart();
-
         mAuth.addAuthStateListener(mAuthListner);
-
     }
 
     @Override

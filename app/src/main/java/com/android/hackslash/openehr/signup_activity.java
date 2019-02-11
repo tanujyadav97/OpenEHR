@@ -32,7 +32,7 @@ public class signup_activity extends AppCompatActivity {
         setContentView(R.layout.signup_activity);
 
 
-        TextView btnSignUp = (TextView) findViewById(R.id.login_page);
+        TextView btnSignUp = findViewById(R.id.login_page);
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,10 +45,10 @@ public class signup_activity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        email_id = (EditText) findViewById(R.id.input_email);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        passwordcheck = (EditText) findViewById(R.id.input_password);
-        Button ahsignup = (Button) findViewById(R.id.btn_signup);
+        email_id = findViewById(R.id.input_email);
+        progressBar = findViewById(R.id.progressBar);
+        passwordcheck = findViewById(R.id.input_password);
+        Button ahsignup = findViewById(R.id.btn_signup);
 
 
         ahsignup.setOnClickListener(new View.OnClickListener() {
