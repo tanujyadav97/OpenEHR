@@ -1,16 +1,14 @@
-package com.android.hackslash.openehr;
+package com.hackslash.medeformlibrary;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -19,88 +17,30 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
-
-import com.android.hackslash.openehr.DB.Field;
-import com.android.hackslash.openehr.DB.NodeData;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class FormActivity extends AppCompatActivity {
-    public LinearLayout rootLL;
+public class GenerateForm {
+    private String path,filename,type;
+    Activity activity;
+    private LinearLayout rootLL;
+    private Context context;
     ArrayList<Pair<String, Pair<String, View>>> views = new ArrayList<>();
-    private DatabaseReference mDatabase;
-    private FirebaseFirestore mFirestore;
-    private FirebaseUser account;
-    private String filename, type, title;
     private ArrayList<Field> fields = new ArrayList<>();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mFirestore = FirebaseFirestore.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
-//                    NodeData note = noteDataSnapshot.getValue(NodeData.class);
-//                    System.out.println(note.archetype_name);
-//                    System.out.println(note.timestamp);
-//                    System.out.println(note.context_id);
-//                    System.out.println(note.field_data.get(0).name);
-//                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        account = FirebaseAuth.getInstance().getCurrentUser();
-
-        rootLL = findViewById(R.id.parentLL);
-
-        Intent intent = getIntent();
-        filename = intent.getStringExtra("file");
-        type = intent.getStringExtra("type");
-        title = intent.getStringExtra("title");
-
-        getSupportActionBar().setTitle(title);
-
-        makeForm(filename, type);
+    public GenerateForm(Activity mactivity, Context mcontext, String Path, String Filename, String Type, int LLID){
+        path = Path;
+        filename = Filename;
+        type = Type;
+        rootLL = mactivity.findViewById(LLID);
+        context = mcontext;
+        activity = mactivity;
+        fields.clear();
     }
 
-    private void makeForm(String filename, String type) {
-        Parser.getData(filename, type);
+    public void makeForm() {
+        Parser.getData(filename, type, path);
         dfs(-1, 0);
-//        Parser.getData(filename,type,"Android/data/com.android.hackslash.openehr");
-
-        Button submit = new Button(this);
-        submit.setText("Submit");
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fields.clear();
-                readData();
-            }
-        });
-        rootLL.addView(submit);
     }
 
     private void dfs(int root, int padding) {
@@ -210,20 +150,20 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addQuantity(boolean type, int root, ArrayList<String> data, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(Color.BLUE);
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(Color.BLUE);
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tv.setLayoutParams(lp1);
-        LinearLayout ll1 = new LinearLayout(this);
+        LinearLayout ll1 = new LinearLayout(context);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
         ll1.setLayoutParams(lp1);
-        NumberPicker np = new NumberPicker(this);
+        NumberPicker np = new NumberPicker(context);
         if (!data.get(1).equals("")) {
             int num = (int) Float.parseFloat(data.get(1));
             np.setMinValue(num);
@@ -234,7 +174,7 @@ public class FormActivity extends AppCompatActivity {
             np.setMaxValue(num);
         } else
             np.setMaxValue(200);
-        TextView unit = new TextView(this);
+        TextView unit = new TextView(context);
         unit.setText(data.get(3));
         ll1.addView(np);
         ll1.addView(unit);
@@ -250,17 +190,17 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addText(boolean type, int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tv.setLayoutParams(lp1);
-        EditText et = new EditText(this);
+        EditText et = new EditText(context);
         et.setLayoutParams(lp1);
         et.setPadding(0, 0, 0, 30);
         if (type)
@@ -275,20 +215,20 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addCount(boolean type, int root, ArrayList<String> data, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tv.setLayoutParams(lp1);
-        LinearLayout ll1 = new LinearLayout(this);
+        LinearLayout ll1 = new LinearLayout(context);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
         ll1.setLayoutParams(lp1);
-        NumberPicker np = new NumberPicker(this);
+        NumberPicker np = new NumberPicker(context);
         if (data.size() > 1 && !data.get(1).equals("")) {
             int num = (int) Float.parseFloat(data.get(1));
             np.setMinValue(num);
@@ -312,20 +252,20 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addOrdinal(boolean type, int root, ArrayList<String> data, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
-        Spinner sp = new Spinner(this);
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
+        Spinner sp = new Spinner(context);
         ArrayList<String> spinnerArray = new ArrayList<>();
         for (int i = 1; i < data.size(); i++)
             spinnerArray.add(data.get(i));
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
         sp.setAdapter(spinnerArrayAdapter);
         if (type)
             ll.addView(tv);
@@ -339,18 +279,18 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addDateTime(boolean type, int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         View vw = tv;
-        LinearLayout ll1 = new LinearLayout(this);
+        LinearLayout ll1 = new LinearLayout(context);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
-        final LayoutInflater factory = getLayoutInflater();
+        final LayoutInflater factory = activity.getLayoutInflater();
         final View view = factory.inflate(R.layout.date_time, null);
         LinearLayout datell = view.findViewById(R.id.datelinear);
         DatePicker dp = view.findViewById(R.id.datep);
@@ -373,21 +313,21 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addBoolean(boolean type, int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tv.setLayoutParams(lp1);
-        LinearLayout ll1 = new LinearLayout(this);
+        LinearLayout ll1 = new LinearLayout(context);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         ll1.setLayoutParams(lp1);
-        Switch sw = new Switch(this);
+        Switch sw = new Switch(context);
         ll1.addView(sw);
         if (type)
             ll.addView(tv);
@@ -401,23 +341,23 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addDuration(boolean type, int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         tv.setLayoutParams(lp1);
-        LinearLayout ll1 = new LinearLayout(this);
+        LinearLayout ll1 = new LinearLayout(context);
         ll1.setOrientation(LinearLayout.HORIZONTAL);
         ll1.setLayoutParams(lp1);
-        NumberPicker np = new NumberPicker(this);
+        NumberPicker np = new NumberPicker(context);
         np.setMinValue(0);
         np.setMaxValue(100);
-        Spinner sp = new Spinner(this);
+        Spinner sp = new Spinner(context);
         ArrayList<String> spinnerArray = new ArrayList<>();
         spinnerArray.add("yr");
         spinnerArray.add("mth");
@@ -427,7 +367,7 @@ public class FormActivity extends AppCompatActivity {
         spinnerArray.add("min");
         spinnerArray.add("sec");
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
         sp.setAdapter(spinnerArrayAdapter);
         ll1.addView(np);
         ll1.addView(sp);
@@ -446,20 +386,20 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addParsable(boolean type, int root, ArrayList<String> data, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
-        Spinner sp = new Spinner(this);
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
+        Spinner sp = new Spinner(context);
         ArrayList<String> spinnerArray = new ArrayList<>();
         for (int i = 1; i < data.size(); i++)
             spinnerArray.add(data.get(i));
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
         sp.setAdapter(spinnerArrayAdapter);
         if (type)
             ll.addView(tv);
@@ -473,20 +413,20 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addCodedText(boolean type, int root, ArrayList<String> data, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
-        Spinner sp = new Spinner(this);
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
+        Spinner sp = new Spinner(context);
         ArrayList<String> spinnerArray = new ArrayList<>();
         for (int i = 1; i < data.size(); i++)
             spinnerArray.add(data.get(i));
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, spinnerArray);
         sp.setAdapter(spinnerArrayAdapter);
         if (type)
             ll.addView(tv);
@@ -500,28 +440,28 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addCluster(boolean type, int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root));
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         if (type)
             ll.addView(tv);
         rootLL.addView(ll);
     }
 
     private void addChoiceName(int root, int padding) {
-        LinearLayout ll = new LinearLayout(this);
+        LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.HORIZONTAL);
         ll.setPadding(padding, 10, 0, 0);
-        TextView tv = new TextView(this);
+        TextView tv = new TextView(context);
         tv.setText(Parser.childNames.get(root) + "\n(Use only one)");
-        tv.setTextColor(getResources().getColor(R.color.fieldname));
+        tv.setTextColor(context.getResources().getColor(R.color.fieldname));
         tv.setTypeface(null, Typeface.BOLD);
-        tv.setTextSize(getResources().getDimension(R.dimen.fieldname));
+        tv.setTextSize(context.getResources().getDimension(R.dimen.fieldname));
         ll.addView(tv);
         rootLL.addView(ll);
     }
@@ -551,9 +491,6 @@ public class FormActivity extends AppCompatActivity {
 
             }
         }
-
-//        addDatatoFirebaseRealtime();
-        addDatatoFirestore();
     }
 
     private void readSwitch(Pair<String, View> data) {
@@ -590,52 +527,5 @@ public class FormActivity extends AppCompatActivity {
         NumberPicker np = (NumberPicker) data.second;
         Log.d("FormData :", data.first + " " + np.getValue());
         fields.add(new Field(data.first, np.getValue() + ""));
-    }
-
-    private void addDatatoFirebaseRealtime() {
-        String uid = mDatabase.push().getKey();
-        String ts = ((Long) System.currentTimeMillis()).toString();
-        NodeData mNode = new NodeData(ts, filename, "tanuj", fields);
-        mDatabase.child(uid).setValue(mNode, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError error, DatabaseReference ref) {
-                if (error == null) {
-                    Toast.makeText(getApplicationContext(), "Database Updated Successfully", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Unable to update database.", Toast.LENGTH_SHORT).show();
-                    Log.e("FormActivity", error.toString());
-                }
-            }
-        });
-    }
-
-    private void addDatatoFirestore() {
-        Map<String, String> fieldsmap = getMapfromList();
-        String ts = ((Long) System.currentTimeMillis()).toString();
-
-        mFirestore.collection("EHR").document(account.getUid()).collection(filename)
-                .document(ts).set(fieldsmap).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getApplicationContext(), "Database Updated Successfully", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "Unable to update database.", Toast.LENGTH_SHORT).show();
-                        Log.e("FormActivity", e.toString());
-                    }
-                });
-    }
-
-    private Map<String, String> getMapfromList() {
-        Map<String, String> tmp = new HashMap<>();
-        for (int i = 0; i < fields.size(); i++) {
-            tmp.put(fields.get(i).name, fields.get(i).value);
-        }
-        return tmp;
     }
 }
