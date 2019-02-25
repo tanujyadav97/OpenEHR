@@ -38,8 +38,7 @@ public class Parser {
         fieldDesc.clear();
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+Path+"/";
-        File adlFile = new File(
-                path + filename);
+        File adlFile = new File(path + filename);
 
         try {
             ADLParser parser = new ADLParser(adlFile);
