@@ -1,7 +1,6 @@
 package com.hackslash.medeformlibrary;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +20,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import android.os.Environment;
-import android.util.Log;
 import android.util.Pair;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
-
-import static android.content.ContentValues.TAG;
 
 public class Parser {
     public static Map<Integer, ArrayList<Integer>> graph = new HashMap<>();
@@ -44,30 +40,7 @@ public class Parser {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+Path+"/";
         File adlFile = new File(
                 path + filename);
-//        Log.d(adlFile.toString(),
-        String result;
 
-
-        long length = adlFile.length();
-        if (length < 1 || length > Integer.MAX_VALUE) {
-            result = "";
-            Log.w(TAG, "File is empty or huge: " + adlFile);
-        } else {
-            try (FileReader in = new FileReader(adlFile)) {
-                char[] content = new char[(int)length];
-
-                int numRead = in.read(content);
-                if (numRead != length) {
-                    Log.e(TAG, "Incomplete read of " + adlFile + ". Read chars " + numRead + " of " + length);
-                }
-                result = new String(content, 0, numRead);
-                Log.d("file",result);
-            }
-            catch (Exception ex) {
-//                Log.e(TAG, "Failure reading " + Parser.class.adlFile, ex);
-                result = "";
-            }
-        }
         try {
             ADLParser parser = new ADLParser(adlFile);
             Archetype at = parser.parse();
