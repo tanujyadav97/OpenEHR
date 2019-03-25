@@ -1,6 +1,7 @@
 package com.android.hackslash.openehr;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -8,8 +9,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ public class signin_activity extends AppCompatActivity {
     private final static int RC_SIGN_IN = 123;
     GoogleSignInClient mGoogleSignInClient;
     FirebaseAuth.AuthStateListener mAuthListner;
+    Switch doc;
 
     @Override
     protected void onStart() {
@@ -48,17 +52,23 @@ public class signin_activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final SharedPreferences.Editor editor = getSharedPreferences("ehrData", MODE_PRIVATE).edit();
 
         mAuth = FirebaseAuth.getInstance();
 
         //check the current user
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(signin_activity.this, NavigationActivity.class));
+            if (getSharedPreferences("ehrData", MODE_PRIVATE).getBoolean("isDoctor", false)) {
+                startActivity(new Intent(signin_activity.this, DoctorActivity.class));
+            } else {
+                startActivity(new Intent(signin_activity.this, NavigationActivity.class));
+            }
             finish();
         }
 
         setContentView(R.layout.signin_activity);
 
+        doc = findViewById(R.id.is_doctor);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         Button ahlogin = (Button) findViewById(R.id.ah_login);
@@ -73,6 +83,13 @@ public class signin_activity extends AppCompatActivity {
             }
         });
 
+        doc.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                editor.putBoolean("isDoctor", b);
+                editor.apply();
+            }
+        });
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,8 +130,11 @@ public class signin_activity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     // there was an error
                                     Log.d(TAG, "signInWithEmail:success");
-                                    Intent intent = new Intent(signin_activity.this, NavigationActivity.class);
-                                    startActivity(intent);
+                                    if (getSharedPreferences("ehrData", MODE_PRIVATE).getBoolean("isDoctor", false)) {
+                                        startActivity(new Intent(signin_activity.this, DoctorActivity.class));
+                                    } else {
+                                        startActivity(new Intent(signin_activity.this, NavigationActivity.class));
+                                    }
                                     finish();
 
                                 } else {
@@ -133,9 +153,12 @@ public class signin_activity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
-                    startActivity(new Intent(signin_activity.this, NavigationActivity.class));
+                    if (getSharedPreferences("ehrData", MODE_PRIVATE).getBoolean("isDoctor", false)) {
+                        startActivity(new Intent(signin_activity.this, DoctorActivity.class));
+                    } else {
+                        startActivity(new Intent(signin_activity.this, NavigationActivity.class));
+                    }
                 }
-
             }
         };
 

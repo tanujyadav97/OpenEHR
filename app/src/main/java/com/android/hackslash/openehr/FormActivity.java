@@ -46,6 +46,7 @@ public class FormActivity extends AppCompatActivity {
     private FirebaseUser account;
     private String filename, type, title;
     private ArrayList<Field> fields = new ArrayList<>();
+    private String patientUserid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,9 @@ public class FormActivity extends AppCompatActivity {
         filename = intent.getStringExtra("file");
         type = intent.getStringExtra("type");
         title = intent.getStringExtra("title");
+        patientUserid = intent.getStringExtra("uid");
+        if (patientUserid.equals(""))
+            patientUserid = account.getUid();
 
         getSupportActionBar().setTitle(title);
 
@@ -614,7 +618,7 @@ public class FormActivity extends AppCompatActivity {
         Map<String, String> fieldsmap = getMapfromList();
         String ts = ((Long) System.currentTimeMillis()).toString();
 
-        mFirestore.collection("EHR").document(account.getUid()).collection(filename)
+        mFirestore.collection("EHR").document(patientUserid).collection(filename)
                 .document(ts).set(fieldsmap).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

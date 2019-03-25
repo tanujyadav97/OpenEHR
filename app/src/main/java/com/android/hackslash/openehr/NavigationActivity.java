@@ -1,6 +1,7 @@
 package com.android.hackslash.openehr;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -221,6 +222,7 @@ public class NavigationActivity extends AppCompatActivity
                         intent.putExtra("file", file.getName());
                         intent.putExtra("type", type);
                         intent.putExtra("title", buttonName);
+                        intent.putExtra("uid", "");
                         startActivity(intent);
                     }
                 });
@@ -237,6 +239,9 @@ public class NavigationActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         Intent intent = new Intent(getApplicationContext(), signin_activity.class);
+                        final SharedPreferences.Editor editor = getSharedPreferences("ehrData", MODE_PRIVATE).edit();
+                        editor.putBoolean("isDoctor", false);
+                        editor.apply();
                         finish();
                         startActivity(intent);
                     }

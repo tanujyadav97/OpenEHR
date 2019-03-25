@@ -24,6 +24,12 @@
             android:src="@drawable/ic_account_circle_black_24dp" />
 
 
+        <Switch
+            android:id="@+id/is_doctor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Doctor?" />
+
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
