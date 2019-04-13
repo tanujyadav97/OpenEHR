@@ -1,1 +1,1 @@
-include ':app', ':medeformlibrary'
+include ':app'

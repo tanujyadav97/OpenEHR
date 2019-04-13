@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DoctorSettingActivity"></activity>
+        <activity android:name=".DoctorSettingActivity" />
         <activity android:name=".DoctorActivity" />
         <activity android:name=".FormActivity" />
         <activity
@@ -22,6 +22,7 @@
         <activity android:name=".signin_activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
