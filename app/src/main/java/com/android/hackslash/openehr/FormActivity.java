@@ -563,7 +563,7 @@ public class FormActivity extends AppCompatActivity {
     private void readSwitch(Pair<String, View> data) {
         Switch sw = (Switch) data.second;
         Log.d("FormData :", data.first + " " + sw.isChecked());
-        fields.add(new Field(data.first, sw.isChecked() + ""));
+        fields.add(new Field(data.first, sw.isChecked()));
     }
 
     private void readTimePicker(Pair<String, View> data) {
@@ -593,7 +593,7 @@ public class FormActivity extends AppCompatActivity {
     private void readNumberPicker(Pair<String, View> data) {
         NumberPicker np = (NumberPicker) data.second;
         Log.d("FormData :", data.first + " " + np.getValue());
-        fields.add(new Field(data.first, np.getValue() + ""));
+        fields.add(new Field(data.first, np.getValue()));
     }
 
     private void addDatatoFirebaseRealtime() {
@@ -615,7 +615,7 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void addDatatoFirestore() {
-        Map<String, String> fieldsmap = getMapfromList();
+        Map<String, Object> fieldsmap = getMapfromList();
         String ts = ((Long) System.currentTimeMillis()).toString();
 
 //        mFirestore.collection("EHR").document(patientUserid).collection(filename)
@@ -666,8 +666,8 @@ public class FormActivity extends AppCompatActivity {
                 });
     }
 
-    private Map<String, String> getMapfromList() {
-        Map<String, String> tmp = new HashMap<>();
+    private Map<String, Object> getMapfromList() {
+        Map<String, Object> tmp = new HashMap<>();
         for (int i = 0; i < fields.size(); i++) {
             tmp.put(fields.get(i).name, fields.get(i).value);
         }
